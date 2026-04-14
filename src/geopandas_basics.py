@@ -28,6 +28,10 @@ from matplotlib.patches import Patch
 
 # Function 1: Load Spatial Data
 
+from typing import Union
+import geopandas as gpd
+from pathlib import Path
+
 def load_spatial_data(file_path: Union[str, Path], **kwargs) -> gpd.GeoDataFrame:
     """
     Load spatial data from various vector file formats.
@@ -36,7 +40,7 @@ def load_spatial_data(file_path: Union[str, Path], **kwargs) -> gpd.GeoDataFrame
     Professional implementation with comprehensive error handling.
     
     Args:
-        file_path: Path to the spatial data file
+        file_path: Path to the spatial data file (string or Path object)
         **kwargs: Additional arguments to pass to gpd.read_file()
         
     Returns:
@@ -50,17 +54,27 @@ def load_spatial_data(file_path: Union[str, Path], **kwargs) -> gpd.GeoDataFrame
         >>> gdf = load_spatial_data('data/cities.geojson')
         >>> print(f"Loaded {len(gdf)} features")
     """
-    # TODO: Implement this function
-    # Hints:
-    # - Convert file_path to Path object
-    # - Check if file exists
-    # - Use gpd.read_file() to load data
-    # - Handle different file formats appropriately
-    # - Validate the loaded data is not empty
-    raise NotImplementedError("load_spatial_data not yet implemented")
+    # Convert to Path object for consistent handling
+    file_path = Path(file_path)
+    
+    # Check if file exists
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    # Try to load the spatial data
+    try:
+        gdf = gpd.read_file(file_path, **kwargs)
+    except Exception as e:
+        raise ValueError(f"Cannot read spatial data from {file_path}: {str(e)}")
+    
+    return gdf
 
 
 # Function 2: Explore Properties
+
+import geopandas as gpd
+import numpy as np
+from typing import Dict, Any
 
 def explore_properties(gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
     """
@@ -78,10 +92,11 @@ def explore_properties(gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
     Returns:
         Dictionary containing spatial properties:
         - 'crs': CRS object or None
-        - 'bounds': [minx, miny, maxx, maxy] or empty list
+        - 'bounds': [minx, miny, maxx, maxy] or [nan, nan, nan, nan] if empty
         - 'geometry_types': List of unique geometry types
         - 'feature_count': Number of features
         - 'columns': List of attribute column names
+        - 'has_valid_geometries': Boolean indicating if all geometries are valid
         
     Example:
         >>> props = explore_properties(gdf)
@@ -89,13 +104,43 @@ def explore_properties(gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
         >>> print(f"Bounds: {props['bounds']}")
         >>> print(f"Geometry types: {props['geometry_types']}")
     """
-    # TODO: Implement this function
-    # Hints:
-    # - Access gdf.crs for coordinate system
-    # - Use gdf.total_bounds for extent
-    # - Check gdf.geometry.geom_type for geometry types
-    # - Count features with len(gdf)
-    raise NotImplementedError("explore_properties not yet implemented")
+    properties = {}
+    
+    # Extract CRS (handle empty GeoDataFrames without geometry column)
+    try:
+        properties['crs'] = gdf.crs
+    except AttributeError:
+        # Empty GeoDataFrame without geometry column has no CRS
+        properties['crs'] = None
+    
+    # Extract bounds (total_bounds returns [minx, miny, maxx, maxy])
+    if len(gdf) > 0:
+        bounds = gdf.total_bounds
+        properties['bounds'] = bounds.tolist()
+    else:
+        properties['bounds'] = [np.nan, np.nan, np.nan, np.nan]
+    
+    # Extract geometry types
+    if len(gdf) > 0:
+        geometry_types = gdf.geometry.geom_type.unique().tolist()
+    else:
+        geometry_types = []
+    properties['geometry_types'] = geometry_types
+    
+    # Feature count
+    properties['feature_count'] = len(gdf)
+    
+    # Column information
+    properties['columns'] = gdf.columns.tolist()
+    
+    # Additional useful properties
+    try:
+        properties['has_valid_geometries'] = gdf.geometry.is_valid.all() if len(gdf) > 0 else True
+    except AttributeError:
+        # No geometry column
+        properties['has_valid_geometries'] = True
+    
+    return properties
 
 
 # Function 3: Transform CRS
