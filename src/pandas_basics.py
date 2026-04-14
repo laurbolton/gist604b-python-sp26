@@ -279,7 +279,7 @@ def calculate_station_statistics(df):
 # FUNCTION 4: JOIN STATION DATA
 # =============================================================================
 
-def join_station_data(readings_df, stations_df):
+def join_station_data(stations_df, readings_df):
     """
     Join sensor readings with station metadata
     
