@@ -1,4 +1,4 @@
-# Python for GIS
+# Python GIS & Containerization
 **Student:** Lauren Bolton  
 **Course:** GIST 604B – Open Source GIS  
 **Module 3:** Python GIS & Containerization   
