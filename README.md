@@ -29,9 +29,12 @@ This project demonstrates Python-based geospatial data analysis using Pandas, Ge
 - Run pytest from the terminal to validate functions
 
 ## Repository Structure
--  README.md - project overview and documentation
-- .devcontainer - development configuration file
-- data/ - data files used in notebooks
- - notebooks/ - Jupyter notebooks with guided workflows
-- src/ - Python scripts containing reusable functions
-- tests/ - tests for validating functionality
+    .
+    ├── .devcontainer
+    ├── data/              # Data files used in notebooks
+    ├── notebooks/         # Jupyter notebooks for guided workflows 
+    ├── src/               # Python scripts with reusable functions 
+    ├── tests/             # Tests for Pandas and GeoPandas functions 
+    ├── pyproject.toml
+    ├── uv.lock 
+    └── README.md          # Project documentation
